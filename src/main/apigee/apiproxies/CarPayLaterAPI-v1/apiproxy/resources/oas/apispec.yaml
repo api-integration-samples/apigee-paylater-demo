@@ -1,0 +1,777 @@
+openapi: 3.0.0
+info:
+  title: Pay Later Car API
+  description: API for pay later for a car
+  version: 1.0.0
+  contact: {}
+paths:
+  /cars:
+    get:
+      description: Retrieves a list of available cars. Supports filtering and pagination.
+      parameters:
+        - description: Page number for pagination
+          in: query
+          name: page
+          schema:
+            minimum: 1
+            type: integer
+        - description: Number of cars per page
+          in: query
+          name: pageSize
+          schema:
+            maximum: 100
+            minimum: 1
+            type: integer
+        - description: Filter cars by manufacturer
+          in: query
+          name: make
+          schema:
+            type: string
+        - description: Filter cars by model
+          in: query
+          name: model
+          schema:
+            type: string
+        - description: Filter cars by year
+          in: query
+          name: year
+          schema:
+            type: integer
+        - description: Filter cars by mileage
+          in: query
+          name: mileage
+          schema:
+            type: integer
+        - description: Filter cars by price
+          in: query
+          name: price
+          schema:
+            type: number
+        - description: >-
+            A page token received from a previous API request, used to request a
+            subsequent page.
+          in: query
+          name: pageToken
+          schema:
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    items:
+                      $ref: '#/components/schemas/record'
+                    type: array
+                  nextPageToken:
+                    type: string
+                type: object
+          description: Successful operation
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad Request
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal Server Error
+      security:
+        - ApiKeyAuth: []
+      summary: Retrieves a list of available cars
+      tags:
+        - cars
+  /cars/{carId}:
+    delete:
+      description: Deletes a specific car by its ID. Requires admin privileges.
+      responses:
+        '204':
+          description: Car successfully deleted
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Unauthorized - Admin privileges required
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Car not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Deletes a specific car by its ID
+      tags:
+        - cars
+    get:
+      description: Retrieves details of a specific car by its ID.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/record'
+          description: Successful operation
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Invalid car ID format
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Car not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Retrieve a specific car by its ID
+      tags:
+        - cars
+    parameters:
+      - description: ID of the car to retrieve
+        in: path
+        name: carId
+        required: true
+        schema:
+          type: string
+    put:
+      description: >-
+        Updates the details of a specific car by its ID. Requires admin
+        privileges.
+      operationId: updateCar
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                description:
+                  description: Detailed description of the car.
+                  type: string
+                imageUrl:
+                  description: URL of the car's image.
+                  type: string
+                make:
+                  description: Manufacturer of the car.
+                  type: string
+                mileage:
+                  description: Mileage of the car.
+                  type: integer
+                model:
+                  description: Model of the car.
+                  type: string
+                price:
+                  description: Price of the car.
+                  format: float
+                  type: number
+                year:
+                  description: Year the car was manufactured.
+                  type: integer
+              type: object
+        description: Car object to update
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  carId:
+                    description: Unique identifier for the car.
+                    type: string
+                  description:
+                    description: Detailed description of the car.
+                    type: string
+                  imageUrl:
+                    description: URL of the car's image.
+                    type: string
+                  make:
+                    description: Manufacturer of the car.
+                    type: string
+                  mileage:
+                    description: Mileage of the car.
+                    type: integer
+                  model:
+                    description: Model of the car.
+                    type: string
+                  price:
+                    description: Price of the car.
+                    format: float
+                    type: number
+                  year:
+                    description: Year the car was manufactured.
+                    type: integer
+                type: object
+          description: Successful update
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Invalid request
+        '403':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Forbidden - Admin privileges required
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Car not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Update a car
+      tags:
+        - cars
+  /financing/applications:
+    post:
+      description: Submits a financing application for a car purchase.
+      operationId: createFinancingApplication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                applicantEmail:
+                  description: Email of the applicant.
+                  format: email
+                  type: string
+                applicantIncome:
+                  description: Annual income of the applicant.
+                  format: double
+                  type: number
+                applicantName:
+                  description: Name of the applicant.
+                  type: string
+                carId:
+                  description: ID of the car being financed.
+                  type: string
+                creditScore:
+                  description: Credit score of the applicant.
+                  type: integer
+                downPayment:
+                  description: Amount of down payment.
+                  format: double
+                  type: number
+                loanAmount:
+                  description: Amount of loan requested.
+                  format: double
+                  type: number
+              required:
+                - applicantName
+                - applicantEmail
+                - applicantIncome
+                - creditScore
+                - carId
+                - downPayment
+                - loanAmount
+              type: object
+        description: Financing application details.
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/record'
+          description: Successful submission of the financing application.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad request. Invalid input data.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal server error.
+      security:
+        - ApiKeyAuth: []
+      summary: Submits a financing application for a car purchase.
+      tags:
+        - financing
+  /financing/applications/{applicationId}:
+    delete:
+      description: >-
+        Deletes a specific financing application by its ID. Only allowed for
+        pending applications.
+      operationId: deleteFinancingApplication
+      responses:
+        '204':
+          description: Financing application successfully deleted
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: >-
+            Invalid application ID format or application is not in pending
+            status
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Financing application not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Deletes a specific financing application
+      tags:
+        - financing
+    get:
+      description: Retrieves the status of a specific financing application by its ID.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/record'
+          description: Successful retrieval of the financing application.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad Request - Invalid application ID format.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Not Found - Financing application not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal Server Error
+      security:
+        - ApiKeyAuth: []
+      summary: Retrieves the status of a specific financing application
+      tags:
+        - financing
+    parameters:
+      - description: ID of the financing application to retrieve.
+        in: path
+        name: applicationId
+        required: true
+        schema:
+          type: string
+    put:
+      description: Allows modification of application details before approval.
+      operationId: updateFinancingApplication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/record'
+        description: Financing application details to update
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/record'
+          description: Successful update of the financing application
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Invalid request body or parameters
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Financing application not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Update a financing application
+      tags:
+        - financing
+  /paymentPlans/{planId}:
+    delete:
+      description: >-
+        Deletes a specific payment plan by its ID. Only allowed for inactive
+        plans.
+      responses:
+        '204':
+          description: Payment plan successfully deleted.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Invalid request.  Plan might be active.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Payment plan not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal server error.
+      security:
+        - ApiKeyAuth: []
+      summary: Deletes a specific payment plan by its ID.
+      tags:
+        - payment-plans
+    get:
+      description: Retrieves details of a specific payment plan by its ID.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentPlan'
+          description: Successful operation
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Invalid plan ID format.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Payment plan not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal server error.
+      security:
+        - ApiKeyAuth: []
+      summary: Retrieves details of a specific payment plan by its ID.
+      tags:
+        - payment-plans
+    parameters:
+      - description: The ID of the payment plan to retrieve.
+        in: path
+        name: planId
+        required: true
+        schema:
+          type: string
+    put:
+      description: Allows modification of payment schedule or amount.
+      operationId: updatePaymentPlan
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                endDate:
+                  description: End date of the payment plan.
+                  format: date
+                  type: string
+                interestRate:
+                  description: Interest rate applied to the loan.
+                  format: float
+                  type: number
+                loanTermMonths:
+                  description: Duration of the loan in months.
+                  type: integer
+                monthlyPayment:
+                  description: Amount of each monthly payment.
+                  format: float
+                  type: number
+                outstandingBalance:
+                  description: Remaining balance on the loan.
+                  format: float
+                  type: number
+                startDate:
+                  description: Start date of the payment plan.
+                  format: date
+                  type: string
+              type: object
+        description: Payment plan details to update
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentPlan'
+          description: Successful update of the payment plan
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Invalid request data
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Payment plan not found
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal server error
+      security:
+        - ApiKeyAuth: []
+      summary: Updates a specific payment plan by its ID
+      tags:
+        - payment-plans
+  /payments:
+    post:
+      description: Records a payment made towards a payment plan.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                paymentAmount:
+                  description: Amount of the payment.
+                  format: float
+                  type: number
+                paymentDate:
+                  description: Date the payment was made.
+                  format: date
+                  type: string
+                paymentMethod:
+                  description: Method of payment (e.g., credit card, bank transfer).
+                  type: string
+                planId:
+                  description: ID of the payment plan the payment is for.
+                  type: string
+              required:
+                - paymentAmount
+                - paymentDate
+                - paymentMethod
+                - planId
+              type: object
+        description: Payment details to be recorded.
+        required: true
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: Payment recorded successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Bad request. Invalid payment details.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Payment plan not found.
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+          description: Internal server error.
+      security:
+        - ApiKeyAuth: []
+      summary: Records a payment made towards a payment plan.
+      tags:
+        - payments
+components:
+  schemas:
+    Error:
+      description: Schema for error responses.
+      properties:
+        code:
+          description: Error code.
+          type: string
+        field:
+          description: The field that caused the error, if applicable.
+          type: string
+        message:
+          description: Error message describing the issue.
+          type: string
+      required:
+        - code
+        - message
+      type: object
+    Payment:
+      description: Represents a payment made towards a payment plan.
+      properties:
+        paymentAmount:
+          description: Amount of the payment.
+          format: float
+          type: number
+        paymentDate:
+          description: Date the payment was made.
+          format: date-time
+          type: string
+        paymentId:
+          description: Unique identifier for the payment.
+          type: string
+        paymentMethod:
+          description: Method of payment (e.g., credit card, bank transfer).
+          enum:
+            - credit card
+            - bank transfer
+            - paypal
+            - other
+          type: string
+        planId:
+          description: ID of the payment plan the payment is for.
+          type: string
+      required:
+        - paymentId
+        - planId
+        - paymentAmount
+        - paymentDate
+        - paymentMethod
+      type: object
+    PaymentPlan:
+      description: Details of a payment plan for a car purchase.
+      properties:
+        applicationId:
+          description: ID of the financing application associated with the plan.
+          type: string
+        endDate:
+          description: End date of the payment plan.
+          format: date
+          type: string
+        interestRate:
+          description: Interest rate applied to the loan.
+          format: float
+          type: number
+        loanTermMonths:
+          description: Duration of the loan in months.
+          type: integer
+        monthlyPayment:
+          description: Amount of each monthly payment.
+          format: float
+          type: number
+        outstandingBalance:
+          description: Remaining balance on the loan.
+          format: float
+          type: number
+        planId:
+          description: Unique identifier for the payment plan.
+          type: string
+        startDate:
+          description: Start date of the payment plan.
+          format: date
+          type: string
+      required:
+        - planId
+        - applicationId
+        - startDate
+        - endDate
+        - loanTermMonths
+        - interestRate
+        - monthlyPayment
+        - outstandingBalance
+      type: object
+    record:
+      properties:
+        ancillaryServicesProvided:
+          type: string
+        bidType:
+          type: string
+        buyerID:
+          type: string
+        capacityFactor:
+          format: float
+          type: number
+        carbonIntensity_gCO2_per_kWh:
+          format: int64
+          type: integer
+        deliveryEndTime:
+          type: string
+        deliveryStartTime:
+          type: string
+        energyVolume_MWh:
+          format: float
+          type: number
+        generationType:
+          type: string
+        gridInterconnectionPoint:
+          type: string
+        id:
+          type: string
+        location:
+          type: string
+        price_USD_per_MWh:
+          format: float
+          type: number
+        renewableEnergyCertificate_REC:
+          type: boolean
+        sellerID:
+          type: string
+        settlementDate:
+          type: string
+        timestamp:
+          type: string
+        tradingPair:
+          type: string
+        transactionStatus:
+          type: string
+        transmissionLosses_percent:
+          format: int64
+          type: integer
+      required:
+        - id
+        - timestamp
+        - tradingPair
+      type: object
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      name: x-api-key
+      in: header

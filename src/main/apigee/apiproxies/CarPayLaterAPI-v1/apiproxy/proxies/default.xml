@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ProxyEndpoint name="default">
+  <Flows>
+    <Flow>
+      <Description>Retrieves a list of available cars</Description>
+      <Condition>request.verb = "GET" and request.path MatchesPath "/cars"</Condition>
+    </Flow>
+    <Flow>
+      <Description>Deletes a specific car by its ID</Description>
+      <Condition>request.verb = "DELETE" and request.path MatchesPath "/cars/*"</Condition>
+    </Flow>
+    <Flow>
+      <Description>Retrieve a specific car by its ID</Description>
+      <Condition>request.verb = "GET" and request.path MatchesPath "/cars/*"</Condition>
+    </Flow>
+    <Flow name="updateCar">
+      <Description>Update a car</Description>
+      <Condition>request.verb = "PUT" and request.path MatchesPath "/cars/*"</Condition>
+    </Flow>
+    <Flow name="createFinancingApplication">
+      <Description>Submits a financing application for a car purchase.</Description>
+      <Condition>request.verb = "POST" and request.path MatchesPath "/financing/applications"</Condition>
+    </Flow>
+    <Flow name="deleteFinancingApplication">
+      <Description>Deletes a specific financing application</Description>
+      <Condition>request.verb = "DELETE" and request.path MatchesPath "/financing/applications/*"</Condition>
+    </Flow>
+    <Flow>
+      <Description>Retrieves the status of a specific financing application</Description>
+      <Condition>request.verb = "GET" and request.path MatchesPath "/financing/applications/*"</Condition>
+    </Flow>
+    <Flow name="updateFinancingApplication">
+      <Description>Update a financing application</Description>
+      <Condition>request.verb = "PUT" and request.path MatchesPath "/financing/applications/*"</Condition>
+    </Flow>
+    <Flow>
+      <Description>Deletes a specific payment plan by its ID.</Description>
+      <Condition>request.verb = "DELETE" and request.path MatchesPath "/paymentPlans/*"</Condition>
+    </Flow>
+    <Flow>
+      <Description>Retrieves details of a specific payment plan by its ID.</Description>
+      <Condition>request.verb = "GET" and request.path MatchesPath "/paymentPlans/*"</Condition>
+    </Flow>
+    <Flow name="updatePaymentPlan">
+      <Description>Updates a specific payment plan by its ID</Description>
+      <Condition>request.verb = "PUT" and request.path MatchesPath "/paymentPlans/*"</Condition>
+    </Flow>
+    <Flow>
+      <Description>Records a payment made towards a payment plan.</Description>
+      <Condition>request.verb = "POST" and request.path MatchesPath "/payments"</Condition>
+    </Flow>
+    <Flow name="unsupported_operation">
+      <Description>Unsupported operation</Description>
+      <Request>
+        <Step>
+          <Name>RF-unknown-operation</Name>
+        </Step>
+      </Request>
+    </Flow>
+  </Flows>
+  <HTTPProxyConnection>
+    <BasePath>/</BasePath>
+  </HTTPProxyConnection>
+  <RouteRule name="default">
+    <TargetEndpoint>default</TargetEndpoint>
+  </RouteRule>
+</ProxyEndpoint>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<TargetEndpoint name="default">
+  <HTTPTargetConnection>
+    <URL>https://mirror-service-323709580283.europe-west4.run.app</URL>
+  </HTTPTargetConnection>
+</TargetEndpoint>
