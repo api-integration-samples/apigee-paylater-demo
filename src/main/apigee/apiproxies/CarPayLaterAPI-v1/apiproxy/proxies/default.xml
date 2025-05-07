@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ProxyEndpoint name="default">
+  <PreFlow name="PreFlow">
+    <Request>
+      <Step>
+        <Name>CORS-SetCors</Name>
+      </Step>
+    </Request>
+  </PreFlow>
   <Flows>
     <Flow>
       <Description>Retrieves a list of available cars</Description>

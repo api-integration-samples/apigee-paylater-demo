@@ -7,7 +7,7 @@ This is a demo of creating an API for pay later transactions when buying a car.
 
 ## Instructions
 
-1. Create an API using Gemini and the Google Cloud Code Apigee extension using natural language. We will use the prompt "API for pay later for buying cars".
+1. Create an API using Gemini and the Google Cloud Code Apigee extension using natural language. We will use the prompt **"API for pay later for buying cars"**.
 
 ![Create API with Gemini, Apigee and Google Cloud Code](/img/create-api.gif)
 
